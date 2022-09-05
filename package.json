@@ -1,0 +1,30 @@
+{
+  "name": "aliproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "allure": "npx playwright test --reporter=line,allure-playwright",
+    "allureGenerate": "npx allure generate ./allure-results",
+    "allureOpen": "npx allure open ./allure-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DaryaKashchenko/aliProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DaryaKashchenko/aliProject/issues"
+  },
+  "homepage": "https://github.com/DaryaKashchenko/aliProject#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.25.1",
+    "allure-commandline": "^2.18.1",
+    "allure-playwright": "^2.0.0-beta.19"
+  },
+  "dependencies": {
+    "mocha": "^10.0.0"
+  }
+}
