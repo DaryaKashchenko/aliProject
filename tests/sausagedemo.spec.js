@@ -1,98 +1,94 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
+const { loginPage } = require('../pageObjects/loginPage') 
+const {poManager } =  require('../pageObjects/poManager')
+const { addProducts } = require('../pageObjects/addProducts')
+const dataSet = JSON.parse(JSON.stringify(require('../utils/testData.json')))
 let browser;
 
+for (const data of dataSet ) {
+
 test.beforeEach (  async({page}) => {
-  await page.goto('https://www.saucedemo.com/')
-  await page.locator('[data-test="username"]').type('standard_user')
-  await page.locator('[data-test="password"]').type('secret_sauce')
-  await page.locator('#login-button').click()
+
+  const PoManager = new poManager(page)
+  const LoginPage = PoManager.getLoginPage()
+  await LoginPage.goTo()
+  await LoginPage.validLogin(data.username, data.password)
   page.on('dialog', dialog => dialog.accept())
 })
 
-test ('add product - checkoutt - fill form - finish', async ({page}) => {
-  
-  await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click()
-  const textRemove = await page.locator('[data-test="remove-sauce-labs-backpack"]').textContent()
-  expect(textRemove).toEqual('Remove')
-  await page.locator('.shopping_cart_link').click()
-  const itemInCart = await page.locator('.inventory_item_name').textContent()
-  expect(itemInCart).toEqual('Sauce Labs Backpack')
-  await page.locator('[data-test="checkout"]').click()
-  await page.locator('[data-test="firstName"]').type('Darya')
-  await page.locator('[data-test="lastName"]').type('Test')
-  await page.locator('[data-test="postalCode"]').type('123456')
-  await page.locator('[data-test="continue"]').click()
-  await page.locator('[data-test="finish"]').click()
-  const title = await page.locator('.title').textContent()
- 
-  expect(title).toEqual('Checkout: Complete!')
-  const thankYouText = await page.locator('.complete-header').textContent()
+test ('add product - checkout - fill form - finish', async ({page}) => {
 
-  expect(thankYouText).toEqual('THANK YOU FOR YOUR ORDER') 
-  const completeOrderText = await page.locator('.complete-text').textContent()
-  
-  expect(completeOrderText).toEqual('Your order has been dispatched, and will arrive just as fast as the pony can get there!')
-  await page.locator('[data-test="back-to-products"]').click()
+  const PoManager = new poManager(page)
+  const AddProsucts = PoManager.getAddProductPage()
+  await AddProsucts.addSauseBackpack ()
+  await AddProsucts.checkRemoveBackpackBtn(data.removeBtnName)
+  await AddProsucts.clickShoppingCardLink ()
+  await AddProsucts.checkNameOfProductInTheCard (data.firstProductName)
+  await AddProsucts.checkoutBtnClick ()
+  await AddProsucts.addPersonalData (data.firstname, data.lastname, data.postalcode)
+  await AddProsucts.clickContinueBtn ()
+  await AddProsucts.clickFinishBtn ()
+  await AddProsucts.checkTitleAndHeader (data.checkoutText, data.thankYouForTheOrder, data.completeOrder)
+  await AddProsucts.goBackToProducts ()
 
 });
 
-test ('add product - delete from the card', async ({page}) => {
-  await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click()
-  const textRemove = await page.locator('#remove-sauce-labs-bike-light').textContent()
-  expect(textRemove).toEqual('Remove')
-  const cardBadge = await page.locator('.shopping_cart_badge').textContent()
-  expect(cardBadge).toEqual('1')
-  await page.locator('.shopping_cart_link').click()
-  const productName = await page.locator('.inventory_item_name').textContent()
-  expect(productName).toEqual('Sauce Labs Bike Light')
-  await page.locator('[data-test="remove-sauce-labs-bike-light"]').click()
+test  ('add product - delete from the card', async ({page}) => {
+
+  const PoManager = new poManager(page)
+  const AddProsucts = PoManager.getAddProductPage()
+  await AddProsucts.addSauseLabsBackBike()
+  await AddProsucts.checkAddBtbIsChanged(data.removeBtnName)
+  await AddProsucts.checkCardBadgeIsChanges(data.oneItenInCard)
+  await AddProsucts.clickShoppingCardLink ()
+  await AddProsucts.checkInventoryItemName (data.productname)
+  await AddProsucts.RemoveItemFromCard ()
   await page.screenshot({path: 'screen/deletedItem.png'})
 
   
 })
 
 test ('check back to product from the card - check product still in the card', async ({page}) => {
-  await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click()
-  const textRemove = await page.locator('#remove-sauce-labs-bike-light').textContent()
-  expect(textRemove).toEqual('Remove')
-  await page.locator('.shopping_cart_link').click()
-  const productName = await page.locator('.inventory_item_name').textContent()
-  expect(productName).toEqual('Sauce Labs Bike Light')
-  await page.locator('.inventory_item_name').click()
-  const productNameDetail = await page.locator('.inventory_details_name.large_size').textContent()
-  expect(productNameDetail).toEqual('Sauce Labs Bike Light')
-  await page.locator('[data-test="back-to-products"]').click()
-  const cardBadge = await page.locator('.shopping_cart_badge').textContent()
-  expect(cardBadge).toEqual('1')
+  
+  const PoManager = new poManager(page)
+  const AddProsucts = PoManager.getAddProductPage()
+  await AddProsucts.addSauseLabsBackBike()
+  await AddProsucts.checkAddBtbIsChanged(data.removeBtnName)
+  await AddProsucts.clickShoppingCardLink ()
+  await AddProsucts.checkInventoryItemName (data.productname)
+  await AddProsucts.inventoryNameClick()
+  await AddProsucts.getProductNameDetail (data.productname)
+  await AddProsucts.goBackToProducts ()
+  await AddProsucts.checkCardBadgeIsChanges (data.oneItenInCard)
 
 
 })
 
 test ('check remove from main page- check card', async ({page}) => {
 
-  await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click()
-  await page.locator('[data-test="add-to-cart-sauce-labs-bike-light"]').click()
-  // const textRemove = await page.locator('[data-test="remove-sauce-labs-backpack"]').textContent()
-  // expect(textRemove).toEqual('Remove')
-  const cardBadge = await page.locator('.shopping_cart_badge').textContent()
-  expect(cardBadge).toEqual('2')
-  await page.locator('[data-test="remove-sauce-labs-bike-light"]').click()
-  const cardBadgeNew = await page.locator('.shopping_cart_badge').textContent()
-  expect(cardBadgeNew).toEqual('1')
+  const PoManager = new poManager(page)
+  const AddProsucts = PoManager.getAddProductPage()
+  await AddProsucts.addSauseBackpack ()
+  await AddProsucts.addSauseLabsBackBike ()
+  await AddProsucts.checkCardBadgeIsChanges (data.twoItemsInCard)
+  await AddProsucts.RemoveItemFromCard ()
+  await AddProsucts.checkCardBadgeIsChanges (data.oneItenInCard)
 
 
 })
 
-test ('chekout - cancel', async ({page}) => {
-  await page.locator('[data-test="add-to-cart-sauce-labs-backpack"]').click()
-  const textRemove = await page.locator('[data-test="remove-sauce-labs-backpack"]').textContent()
-  expect(textRemove).toEqual('Remove')
-  await page.locator('.shopping_cart_link').click()
-  const itemInCart = await page.locator('.inventory_item_name').textContent()
-  expect(itemInCart).toEqual('Sauce Labs Backpack')
-  await page.locator('[data-test="checkout"]').click()
-  await page.locator('[data-test="cancel"]').click()
-  expect(itemInCart).toEqual('Sauce Labs Backpack')
+test.only ('chekout - cancel', async ({page}) => {
+
+  const PoManager = new poManager(page)
+  const AddProsucts = PoManager.getAddProductPage()
+  await AddProsucts.addSauseBackpack ()
+  await AddProsucts.checkRemoveBackpackBtn(data.removeBtnName)
+  await AddProsucts.clickShoppingCardLink ()
+  await AddProsucts.checkNameOfProductInTheCard (data.firstProductName)
+  await AddProsucts.checkoutBtnClick ()
+  await AddProsucts.cancelBtn ()
+  await AddProsucts.checkNameOfProductInTheCard (data.firstProductName)
   
 })
+}
