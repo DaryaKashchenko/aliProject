@@ -1,0 +1,18 @@
+[
+    {
+        "username" : "standard_user",
+        "password" : "secret_sauce",
+        "removeBtnName": "Remove",
+        "oneItenInCard": "1",
+        "twoItemsInCard": "2",
+        "productname": "Sauce Labs Bike Light",
+        "firstProductName": "Sauce Labs Backpack",
+        "firstname": "Darya",
+        "lastname": "Troshina",
+        "postalcode": "123456",
+        "checkoutText": "Checkout: Complete!",
+        "thankYouForTheOrder" : "THANK YOU FOR YOUR ORDER",
+        "completeOrder" : "Your order has been dispatched, and will arrive just as fast as the pony can get there!"
+        
+    }
+]
